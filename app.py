@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, render_template, jsonify
 import joblib
 import numpy as np
 
@@ -10,13 +10,17 @@ app = Flask(__name__)
 
 @app.route("/")
 def home():
-    return "AI Healthcare Diagnosis API is Running!"
+    return render_template("index.html")  # Display the form page
 
 @app.route("/predict", methods=["POST"])
 def predict():
     try:
-        data = request.json  # Get JSON data from request
-        features = np.array([data["features"]])  # Convert to NumPy array
+        # Get the form data from the frontend
+        symptoms = request.form["symptoms"]  
+
+        # Convert symptoms to a numerical format (this needs proper preprocessing)
+        # For now, let's assume we use dummy input
+        features = np.array([[0] * len(label_encoders)])  # Dummy placeholder
 
         # Make prediction
         prediction = rf_model.predict(features)
@@ -24,11 +28,10 @@ def predict():
         # Decode prediction
         predicted_disease = label_encoders["Disease"].inverse_transform(prediction)
 
-        return jsonify({"predicted_disease": predicted_disease[0]})
+        return render_template("result.html", disease=predicted_disease[0])  # Show result page
 
     except Exception as e:
-        return jsonify({"error": str(e)})
+        return render_template("result.html", error=str(e))  # Show error page
 
-# Run Flask API locally
 if __name__ == "__main__":
     app.run(debug=True)
