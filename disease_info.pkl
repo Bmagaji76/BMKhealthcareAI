@@ -1,0 +1,19 @@
+import pickle
+
+disease_info = {
+    "Malaria": {
+        "description": "A disease caused by a plasmodium parasite, transmitted by mosquito bites.",
+        "symptoms": ["Fever", "Chills", "Sweating", "Headache", "Nausea"],
+        "treatment": "Anti-malarial drugs like Chloroquine, Artemisinin Combination Therapy (ACT)."
+    },
+    "Typhoid": {
+        "description": "A bacterial infection that spreads through contaminated food and water.",
+        "symptoms": ["High fever", "Weakness", "Stomach pain", "Loss of appetite"],
+        "treatment": "Antibiotics such as Ciprofloxacin, Azithromycin."
+    }
+    # Add more diseases...
+}
+
+# Save as a pickle file
+with open("disease_info.pkl", "wb") as file:
+    pickle.dump(disease_info, file)
