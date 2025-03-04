@@ -3,18 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Healthcare Diagnosis</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>AI Healthcare Assistant</title>
+    <link rel="stylesheet" href="static/style.css">
 </head>
 <body>
     <div class="container">
-        <h1>AI Healthcare Diagnosis</h1>
-        <p>Enter your symptoms below, and our AI will predict your possible illness.</p>
-        
+        <h1>Welcome to AI Healthcare Assistant</h1>
+        <p>Describe your symptoms, and our AI will provide possible diagnoses and prescriptions.</p>
         <form action="/predict" method="post">
-            <label for="symptoms">Describe your symptoms:</label>
-            <textarea id="symptoms" name="symptoms" rows="4" placeholder="E.g., fever, headache, fatigue..."></textarea>
-            
+            <textarea name="user_input" placeholder="Describe your symptoms here..." required></textarea>
             <button type="submit">Get Diagnosis</button>
         </form>
     </div>
