@@ -10,10 +10,16 @@
     <div class="container">
         <h1>Welcome to AI Healthcare Assistant</h1>
         <p>Describe your symptoms, and our AI will provide possible diagnoses and prescriptions.</p>
-        <form action="/predict" method="post">
-            <textarea name="user_input" placeholder="Describe your symptoms here..." required></textarea>
+        <form action="/predict" method="post" enctype="multipart/form-data">
+            <textarea name="user_input" id="user_input" placeholder="Describe your symptoms here..." required></textarea>
+            <div class="voice-controls">
+                <button type="button" onclick="startRecording()">🎙️ Record Voice</button>
+                <button type="button" onclick="stopRecording()">⏹️ Stop Recording</button>
+                <input type="file" name="audio" id="audio" accept="audio/*" hidden>
+            </div>
             <button type="submit">Get Diagnosis</button>
         </form>
     </div>
+    <script src="static/script.js"></script>
 </body>
 </html>
