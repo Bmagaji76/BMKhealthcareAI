@@ -12,7 +12,11 @@
         <p><strong>Symptoms:</strong> {{ user_input }}</p>
         <p><strong>Diagnosis:</strong> {{ diagnosis }}</p>
         <p><strong>Prescription:</strong> {{ prescription }}</p>
+        <div class="voice-controls">
+            <button onclick="playAudio('{{ audio_response }}')">🔊 Listen to Diagnosis</button>
+        </div>
         <a href="/">Back to Home</a>
     </div>
+    <script src="static/script.js"></script>
 </body>
 </html>
