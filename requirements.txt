@@ -10,3 +10,4 @@ pandas
 requests
 werkzeug
 gunicorn
+flask-cors
