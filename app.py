@@ -4,8 +4,26 @@ import speech_recognition as sr
 from gtts import gTTS
 from flask import Flask, render_template, request, jsonify
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+import requests
 
 app = Flask(__name__)
+
+# ✅ GitHub Release URL for the model file
+GITHUB_MODEL_URL = "https://github.com/YOUR-USERNAME/BMKhealthcareAI/releases/download/v1.0/model.safetensor"
+MODEL_PATH = "model.safetensor"
+
+# ✅ Function to download the model file if not present
+def download_model():
+    if not os.path.exists(MODEL_PATH):
+        print("Downloading model...")
+        response = requests.get(GITHUB_MODEL_URL, stream=True)
+        with open(MODEL_PATH, "wb") as file:
+            for chunk in response.iter_content(chunk_size=8192):
+                file.write(chunk)
+        print("✅ Model downloaded successfully!")
+
+# ✅ Download the model if not already present
+download_model()
 
 # Load trained AI model
 model_name = "conversational_medical_model"
