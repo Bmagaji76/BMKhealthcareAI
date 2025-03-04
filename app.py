@@ -1,43 +1,70 @@
-from flask import Flask, request, jsonify, render_template
-import joblib
-import numpy as np
-
-# Load the trained model and encoders
-rf_model = joblib.load("healthcare_ai_model.pkl")
-label_encoders = joblib.load("label_encoders.pkl")
-disease_info = joblib.load("disease_info.pkl")  # A dictionary with explanations for each illness
+import os
+import torch
+import speech_recognition as sr
+from gtts import gTTS
+from flask import Flask, render_template, request, jsonify
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
 app = Flask(__name__)
 
-@app.route("/")
-def home():
-    return render_template("index.html")  # Renders the homepage
+# Load trained AI model
+model_name = "conversational_medical_model"
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
 
-@app.route("/predict", methods=["POST"])
-def predict():
+# Speech recognition function
+def speech_to_text(audio_file):
+    recognizer = sr.Recognizer()
+    with sr.AudioFile(audio_file) as source:
+        audio = recognizer.record(source)
     try:
-        data = request.json  # Get JSON data from request
-        symptoms = data.get("features", [])  # Extract symptoms
-        
-        if not symptoms:
-            return jsonify({"error": "Please provide at least one symptom."})
-        
-        # Convert symptoms into numerical features (handling unknowns)
-        features = np.array([symptoms])
-        prediction = rf_model.predict(features)
-        predicted_disease = label_encoders["Disease"].inverse_transform(prediction)
-        disease_name = predicted_disease[0]
-        
-        # Fetch disease explanation
-        explanation = disease_info.get(disease_name, "No description available.")
-        
-        return jsonify({
-            "predicted_disease": disease_name,
-            "explanation": explanation,
-            "recommendation": "Consult a doctor if symptoms persist."
-        })
-    except Exception as e:
-        return jsonify({"error": "Invalid input. Please enter valid symptoms."})
+        text = recognizer.recognize_google(audio)
+        return text
+    except sr.UnknownValueError:
+        return "Sorry, could not understand the audio."
+    except sr.RequestError:
+        return "Could not request results, check your internet connection."
 
-if __name__ == "__main__":
-    app.run(debug=True)
+# Text-to-Speech function
+def text_to_speech(text, filename="output.mp3"):
+    tts = gTTS(text=text, lang='en')
+    tts.save(filename)
+    return filename
+
+# Home route
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+# Prediction route
+@app.route('/predict', methods=['POST'])
+def predict():
+    user_input = request.form.get("user_input")
+    if "audio" in request.files:
+        audio_file = request.files["audio"]
+        user_input = speech_to_text(audio_file)
+    
+    inputs = tokenizer(user_input, return_tensors="pt", max_length=512, truncation=True)
+    outputs = model.generate(**inputs)
+    diagnosis = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    prescription = "Take necessary precautions and consult a doctor if symptoms persist."
+    
+    audio_response = text_to_speech(diagnosis)
+    
+    return render_template('results.html', user_input=user_input, diagnosis=diagnosis, prescription=prescription, audio_response=audio_response)
+
+# API route for JSON response
+@app.route('/api/predict', methods=['POST'])
+def api_predict():
+    data = request.json
+    user_input = data.get("text")
+    
+    inputs = tokenizer(user_input, return_tensors="pt", max_length=512, truncation=True)
+    outputs = model.generate(**inputs)
+    diagnosis = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    prescription = "Take necessary precautions and consult a doctor if symptoms persist."
+    
+    return jsonify({"diagnosis": diagnosis, "prescription": prescription})
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=True)
