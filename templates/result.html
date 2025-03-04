@@ -4,10 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Diagnosis Result</title>
+    <link rel="stylesheet" href="static/style.css">
 </head>
 <body>
-    <h1>Your Diagnosis</h1>
-    <p>The AI predicts that you might have: <strong>{{ disease }}</strong></p>
-    <a href="/">Go back</a>
+    <div class="container">
+        <h1>Your AI Diagnosis</h1>
+        <p><strong>Symptoms:</strong> {{ user_input }}</p>
+        <p><strong>Diagnosis:</strong> {{ diagnosis }}</p>
+        <p><strong>Prescription:</strong> {{ prescription }}</p>
+        <a href="/">Back to Home</a>
+    </div>
 </body>
 </html>
