@@ -9,15 +9,17 @@ import requests
 app = Flask(__name__)
 
 # ✅ GitHub Release URL for the model file
-GITHUB_MODEL_URL = "https://github.com/Bmagaji76/BMKhealthcareAI/releases/download/v1.0/model.safetensors"
-MODEL_PATH = "model.safetensors"
+GITHUB_MODEL_URL = "https://github.com/YOUR-USERNAME/YOUR-REPO/releases/download/v1.0/model.safetensors"
+MODEL_DIR = "conversational_medical_model"
+MODEL_FILE = os.path.join(MODEL_DIR, "model.safetensors")
 
 # ✅ Function to download the model file if not present
 def download_model():
-    if not os.path.exists(MODEL_PATH):
+    if not os.path.exists(MODEL_FILE):
+        os.makedirs(MODEL_DIR, exist_ok=True)
         print("Downloading model...")
         response = requests.get(GITHUB_MODEL_URL, stream=True)
-        with open(MODEL_PATH, "wb") as file:
+        with open(MODEL_FILE, "wb") as file:
             for chunk in response.iter_content(chunk_size=8192):
                 file.write(chunk)
         print("✅ Model downloaded successfully!")
@@ -26,9 +28,10 @@ def download_model():
 download_model()
 
 # Load trained AI model
-model_name = "conversational_medical_model"
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
+print("Loading model...")
+tokenizer = AutoTokenizer.from_pretrained(MODEL_DIR)
+model = AutoModelForSeq2SeqLM.from_pretrained(MODEL_DIR, safetensors=True)
+print("✅ Model loaded successfully!")
 
 # Speech recognition function
 def speech_to_text(audio_file):
@@ -44,7 +47,7 @@ def speech_to_text(audio_file):
         return "Could not request results, check your internet connection."
 
 # Text-to-Speech function
-def text_to_speech(text, filename="output.mp3"):
+def text_to_speech(text, filename="static/output.mp3"):
     tts = gTTS(text=text, lang='en')
     tts.save(filename)
     return filename
