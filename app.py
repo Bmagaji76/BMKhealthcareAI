@@ -89,10 +89,11 @@ def api_predict():
 
 import os
 
-if __name__ != "gunicorn":
-    port = int(os.environ.get("PORT", 5000))  # Use Render's assigned port
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))  # Render assigns a port
     app.run(host="0.0.0.0", port=port, debug=True)
 
-# Gunicorn requires 'application' as the entry point
+# Gunicorn needs 'application' instead of 'app'
 application = app
+
 
