@@ -22,14 +22,18 @@ function stopRecording() {
         mediaRecorder.addEventListener("stop", () => {
             const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
             const audioFile = new File([audioBlob], "recorded_audio.wav", { type: "audio/wav" });
-            
-            const fileInput = document.getElementById("audio");
-            const dataTransfer = new DataTransfer();
-            dataTransfer.items.add(audioFile);
-            fileInput.files = dataTransfer.files;
+
+            const formData = new FormData();
+            formData.append("audio", audioFile);
+
+            fetch("/predict", {
+                method: "POST",
+                body: formData,
+            });
         });
     }
 }
+
 
 function playAudio(audioUrl) {
     let audio = new Audio(audioUrl);
