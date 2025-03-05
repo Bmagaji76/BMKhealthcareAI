@@ -9,8 +9,8 @@ import requests
 app = Flask(__name__)
 
 # ✅ GitHub Release URL for the model file
-GITHUB_MODEL_URL = "https://github.com/Bmagaji76/BMKhealthcareAI/releases/download/v1.0/model.safetensor"
-MODEL_PATH = "model.safetensor"
+GITHUB_MODEL_URL = "https://github.com/Bmagaji76/BMKhealthcareAI/releases/download/v1.0/model.safetensors"
+MODEL_PATH = "model.safetensors"
 
 # ✅ Function to download the model file if not present
 def download_model():
