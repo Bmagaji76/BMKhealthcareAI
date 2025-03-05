@@ -8,24 +8,34 @@ import requests
 
 app = Flask(__name__)
 
-# ✅ GitHub Release URL for the model file
-GITHUB_MODEL_URL = "https://github.com/Bmagaji76/BMKhealthcareAI/releases/download/v1.0/model.safetensors"
+import os
+import requests
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+
 MODEL_DIR = "conversational_medical_model"
 MODEL_FILE = os.path.join(MODEL_DIR, "model.safetensors")
+GITHUB_MODEL_URL = "https://github.com/Bmagaji76/BMKhealthcareAI/releases/download/v1.0/model.safetensors"
 
-# ✅ Function to download the model file if not present
+# ✅ Function to download model if not found
 def download_model():
     if not os.path.exists(MODEL_FILE):
         os.makedirs(MODEL_DIR, exist_ok=True)
-        print("Downloading model...")
+        print("Downloading model from GitHub Releases...")
         response = requests.get(GITHUB_MODEL_URL, stream=True)
         with open(MODEL_FILE, "wb") as file:
             for chunk in response.iter_content(chunk_size=8192):
                 file.write(chunk)
         print("✅ Model downloaded successfully!")
 
-# ✅ Download the model if not already present
+# ✅ Ensure the model is downloaded before running the app
 download_model()
+
+# ✅ Load tokenizer and model
+print("Loading AI model...")
+tokenizer = AutoTokenizer.from_pretrained(MODEL_DIR)
+model = AutoModelForSeq2SeqLM.from_pretrained(MODEL_DIR)
+print("✅ Model loaded successfully!")
+
 
 # Load trained AI model
 print("Loading model...")
