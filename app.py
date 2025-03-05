@@ -71,9 +71,12 @@ def predict():
             audio_file = request.files["audio"]
             audio_bytes = audio_file.read()
 
-            # ✅ Convert audio bytes to a readable WAV file
-            with wave.open(io.BytesIO(audio_bytes), "rb") as audio:
-                user_input = speech_to_text(io.BytesIO(audio_bytes))  # Convert speech to text
+            # ✅ Ensure the file is a WAV file
+            try:
+                with wave.open(io.BytesIO(audio_bytes), "rb") as audio:
+                    user_input = speech_to_text(io.BytesIO(audio_bytes))  # Convert speech to text
+            except wave.Error:
+                return jsonify({"error": "Invalid audio format. Please upload a WAV file."}), 400
 
         # ✅ Process text input with AI Model
         inputs = tokenizer(user_input, return_tensors="pt", max_length=512, truncation=True)
