@@ -30,7 +30,7 @@ download_model()
 # Load trained AI model
 print("Loading model...")
 tokenizer = AutoTokenizer.from_pretrained(MODEL_DIR)
-model = AutoModelForSeq2SeqLM.from_pretrained(MODEL_DIR, safetensors=True)
+model = AutoModelForSeq2SeqLM.from_pretrained(MODEL_DIR)
 print("✅ Model loaded successfully!")
 
 # Speech recognition function
