@@ -58,21 +58,35 @@ def index():
     return render_template('index.html')
 
 # Prediction route
+import wave
+import io
+
 @app.route('/predict', methods=['POST'])
 def predict():
-    user_input = request.form.get("user_input")
-    if "audio" in request.files:
-        audio_file = request.files["audio"]
-        user_input = speech_to_text(audio_file)
-    
-    inputs = tokenizer(user_input, return_tensors="pt", max_length=512, truncation=True)
-    outputs = model.generate(**inputs)
-    diagnosis = tokenizer.decode(outputs[0], skip_special_tokens=True)
-    prescription = "Take necessary precautions and consult a doctor if symptoms persist."
-    
-    audio_response = text_to_speech(diagnosis)
-    
-    return render_template('results.html', user_input=user_input, diagnosis=diagnosis, prescription=prescription, audio_response=audio_response)
+    try:
+        user_input = request.form.get("user_input")  # Get text input
+
+        # ✅ Check if an audio file was uploaded
+        if "audio" in request.files:
+            audio_file = request.files["audio"]
+            audio_bytes = audio_file.read()
+
+            # ✅ Convert audio bytes to a readable WAV file
+            with wave.open(io.BytesIO(audio_bytes), "rb") as audio:
+                user_input = speech_to_text(io.BytesIO(audio_bytes))  # Convert speech to text
+
+        # ✅ Process text input with AI Model
+        inputs = tokenizer(user_input, return_tensors="pt", max_length=512, truncation=True)
+        outputs = model.generate(**inputs)
+        diagnosis = tokenizer.decode(outputs[0], skip_special_tokens=True)
+        prescription = "Take necessary precautions and consult a doctor if symptoms persist."
+
+        audio_response = text_to_speech(diagnosis)
+
+        return render_template("results.html", user_input=user_input, diagnosis=diagnosis, prescription=prescription, audio_response=audio_response)
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 # API route for JSON response
 @app.route('/api/predict', methods=['POST'])
