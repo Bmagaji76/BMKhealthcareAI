@@ -9,7 +9,7 @@ import requests
 app = Flask(__name__)
 
 # ✅ GitHub Release URL for the model file
-GITHUB_MODEL_URL = "https://github.com/YOUR-USERNAME/YOUR-REPO/releases/download/v1.0/model.safetensors"
+GITHUB_MODEL_URL = "https://github.com/Bmagaji76/BMKhealthcareAI/releases/download/v1.0/model.safetensors"
 MODEL_DIR = "conversational_medical_model"
 MODEL_FILE = os.path.join(MODEL_DIR, "model.safetensors")
 
