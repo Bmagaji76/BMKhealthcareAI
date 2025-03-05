@@ -87,5 +87,9 @@ def api_predict():
     
     return jsonify({"diagnosis": diagnosis, "prescription": prescription})
 
-if __name__ == '__main__':
+if __name__ != "gunicorn":
     app.run(host='0.0.0.0', port=5000, debug=True)
+
+# Gunicorn expects 'application', so we alias it to 'app'
+application = app
+
