@@ -65,20 +65,26 @@ import io
 def predict():
     try:
         user_input = request.form.get("user_input")  # Get text input
+        if not user_input and "audio" not in request.files:
+            return jsonify({"error": "No text or audio input received."}), 400
 
-        # ✅ Check if an audio file was uploaded
+        # ✅ Handle audio input
         if "audio" in request.files:
             audio_file = request.files["audio"]
             audio_bytes = audio_file.read()
 
-            # ✅ Ensure the file is a WAV file
+            # ✅ Ensure the file is a valid WAV file
             try:
                 with wave.open(io.BytesIO(audio_bytes), "rb") as audio:
                     user_input = speech_to_text(io.BytesIO(audio_bytes))  # Convert speech to text
             except wave.Error:
                 return jsonify({"error": "Invalid audio format. Please upload a WAV file."}), 400
 
-        # ✅ Process text input with AI Model
+        # ✅ Ensure there is text input after processing
+        if not user_input:
+            return jsonify({"error": "No valid input received after processing."}), 400
+
+        # ✅ Process input with AI Model
         inputs = tokenizer(user_input, return_tensors="pt", max_length=512, truncation=True)
         outputs = model.generate(**inputs)
         diagnosis = tokenizer.decode(outputs[0], skip_special_tokens=True)
@@ -86,10 +92,11 @@ def predict():
 
         audio_response = text_to_speech(diagnosis)
 
-        return render_template("results.html", user_input=user_input, diagnosis=diagnosis, prescription=prescription, audio_response=audio_response)
+        return jsonify({"user_input": user_input, "diagnosis": diagnosis, "prescription": prescription, "audio_response": audio_response})
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 # API route for JSON response
 @app.route('/api/predict', methods=['POST'])
